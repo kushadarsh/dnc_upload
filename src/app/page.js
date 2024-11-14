@@ -4,7 +4,8 @@ import { useState } from 'react';
 
 export default function Home() {
   const [uploadType, setUploadType] = useState("file");
-  const [fileUrl, setFileUrl] = useState(""); // URL of the file
+  const [file, setFile] = useState(null); // Store the selected file
+  const [fileUrl, setFileUrl] = useState(""); // URL of the uploaded file
   const [singleEmail, setSingleEmail] = useState("");
   const [checkbox, setCheckbox] = useState(false);
   const [email, setEmail] = useState("");
@@ -13,12 +14,13 @@ export default function Home() {
 
   const handleUploadTypeChange = (type) => {
     setUploadType(type);
+    setFile(null);
     setFileUrl("");
     setSingleEmail("");
   };
 
-  const handleFileUrlChange = (e) => {
-    setFileUrl(e.target.value);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
   const handleEmailChange = (e) => {
@@ -33,29 +35,74 @@ export default function Home() {
     setCheckbox(!checkbox);
   };
 
+  const uploadFileToS3 = async () => {
+    if (!file) return;
+  
+    const fileName = file.name;
+    const fileType = file.type;
+  
+    // Request presigned URL from API
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName, fileType }),
+    });
+  
+    const { uploadUrl, fileUrl: uploadedFileUrl } = await response.json();
+    
+  
+    // Upload file to S3 using the presigned URL
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': fileType, // Ensure this matches the ContentType in the presigned URL
+      },
+      body: file,
+    });
+  
+    if (!uploadResponse.ok) {
+      console.error('Failed to upload to S3:', await uploadResponse.text());
+      throw new Error('File upload failed');
+    }
+  
+    return uploadedFileUrl; 
+  };
+  
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    const apiKey = process.env.NEXT_PUBLIC_AIRTABLE_API_KEY;
-    const baseId = process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
-    const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_NAME;
-
-    // Prepare data for Airtable
-    const data = {
-      fields: {
-        "Email": email,
-        "Upload Type": uploadType,
-        "File URL": fileUrl
-          ? fileUrl
-          : null,
-        "DNC Mail": singleEmail,
-        "Confirmed": checkbox,
-      },
-    };
-    console.log(data)
-
+  
     try {
+      // Upload the file to S3 if there's a file
+      let uploadedFileUrl;
+      let uploadedFileName = ""; // Initialize variable to store file name
+  
+      if (file && uploadType === "file") {
+        uploadedFileUrl = await uploadFileToS3(); // Get S3 URL
+        uploadedFileName = file.name; // Get the file name from the uploaded file
+      }
+    
+  
+      const apiKey = process.env.NEXT_PUBLIC_AIRTABLE_API_KEY;
+      const baseId = process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
+      const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_NAME;
+  
+      // Prepare data for Airtable with the S3 URL as an attachment, including the filename
+      const data = {
+        fields: {
+          "Email": email,
+          "Upload Type": uploadType,
+          "File": uploadedFileUrl ? uploadedFileUrl  : null,
+          "DNC Mail": singleEmail,
+          "Confirmed": checkbox,
+        },
+      };
+  
+     
+  
+      // Send the data to Airtable
       const response = await fetch(`https://api.airtable.com/v0/${baseId}/${tableName}`, {
         method: "POST",
         headers: {
@@ -64,17 +111,19 @@ export default function Home() {
         },
         body: JSON.stringify(data),
       });
+  
+      const responseData = await response.json();
 
+  
       if (response.ok) {
-        setSuccessMessage("Successfully uploaded");
+        setSuccessMessage("Successfully uploaded and record created in Airtable with attachment.");
         setEmail("");
-        setFileUrl("");
+        setFile(null);
         setSingleEmail("");
         setCheckbox(false);
         setUploadType("file");
       } else {
-        const errorData = await response.json();
-        console.error("Error Uploading:", errorData);
+        console.error("Error Uploading:", responseData);
       }
     } catch (error) {
       console.error("Request failed:", error);
@@ -118,12 +167,10 @@ export default function Home() {
 
           {uploadType === "file" ? (
             <div style={styles.inputGroup}>
-              <label style={styles.label}>File URL (Google Drive or any direct link)</label>
+              <label style={styles.label}>Upload File (CSV or TXT)</label>
               <input
-                type="url"
-                value={fileUrl}
-                onChange={handleFileUrlChange}
-                placeholder="https://drive.google.com/yourfilelink"
+                type="file"
+                onChange={handleFileChange}
                 required
                 style={styles.input}
               />
