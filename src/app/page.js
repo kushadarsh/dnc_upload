@@ -116,7 +116,7 @@ export default function Home() {
 
   
       if (response.ok) {
-        setSuccessMessage("Successfully uploaded and record created in Airtable with attachment.");
+        setSuccessMessage("Successfully Uploaded to Your Do-Not-Contact List.");
         setEmail("");
         setFile(null);
         setSingleEmail("");
@@ -215,19 +215,20 @@ const styles = {
     backgroundColor: "#ffffff",
   },
   container: {
-    maxWidth: "600px",
+    maxWidth: "600px", // Increase this value if you'd like a wider container
     width: "100%",
     padding: "20px",
     backgroundColor: "#ffffff",
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
+    textAlign: "left", // Align container content to the left
   },
   mainHeading: {
     fontSize: "1.5em",
     fontWeight: "bold",
     color: "#0073e6",
     marginBottom: "20px",
+    textAlign: "left", // Align heading text to the left
   },
   form: {
     display: "flex",
@@ -236,14 +237,16 @@ const styles = {
   },
   inputGroup: {
     marginBottom: "15px",
+    textAlign: "left", // Align input group text to the left
   },
   label: {
     display: "block",
     fontWeight: "500",
     marginBottom: "5px",
+    textAlign: "left", // Align label text to the left
   },
   input: {
-    width: "100%",
+    width: "100%", // Ensures input takes full width of container
     padding: "10px",
     fontSize: "1em",
     borderRadius: "4px",
@@ -261,6 +264,7 @@ const styles = {
     border: "1px solid #ddd",
     backgroundColor: "#f9f9f9",
     cursor: "pointer",
+    textAlign: "left", // Align tab text to the left
   },
   activeTab: {
     flex: 1,
@@ -270,15 +274,18 @@ const styles = {
     backgroundColor: "#0073e6",
     color: "#fff",
     cursor: "pointer",
+    textAlign: "left", // Align active tab text to the left
   },
   checkboxContainer: {
     display: "flex",
     alignItems: "center",
     marginTop: "10px",
+    textAlign: "left", // Align checkbox container text to the left
   },
   checkboxLabel: {
     marginLeft: "8px",
     fontSize: "0.9em",
+    textAlign: "left", // Align checkbox label text to the left
   },
   submitButton: {
     marginTop: "20px",
@@ -289,10 +296,14 @@ const styles = {
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
+    textAlign: "center", // Center-align the button text
   },
   successMessage: {
     color: "green",
     marginTop: "15px",
     fontSize: "1em",
+    textAlign: "left", // Align success message text to the left
+    paddingLeft: "10px",
   },
 };
+
