@@ -138,7 +138,7 @@ export default function Home() {
         <h1 style={styles.mainHeading}>Do Not Contact (DNC) List Upload</h1>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>app.leadbird.io Login Email</label>
+            <label style={styles.label}>app.leadgenops.com Login Email</label>
             <input
               type="email"
               value={email}
