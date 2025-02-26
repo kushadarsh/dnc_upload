@@ -116,7 +116,7 @@ export default function Home() {
 
   
       if (response.ok) {
-        setSuccessMessage("Successfully Uploaded to Your Do-Not-Contact List.");
+        setSuccessMessage("Successfully uploaded and record created in Airtable with attachment.");
         setEmail("");
         setFile(null);
         setSingleEmail("");
@@ -138,7 +138,7 @@ export default function Home() {
         <h1 style={styles.mainHeading}>Do Not Contact (DNC) List Upload</h1>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>App.Leadbird.io Login Email</label>
+            <label style={styles.label}>app.leadbird.io Login Email</label>
             <input
               type="email"
               value={email}
@@ -167,7 +167,7 @@ export default function Home() {
 
           {uploadType === "file" ? (
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Upload File (CSV or TXT)</label>
+              <label style={styles.label}>Upload File (.csv only)</label>
               <input
                 type="file"
                 onChange={handleFileChange}
@@ -195,9 +195,18 @@ export default function Home() {
             </div>
           )}
 
-          <button type="submit" style={styles.submitButton} disabled={loading}>
-            {loading ? "Uploading..." : "Upload DNC List"}
-          </button>
+            <button
+              type="submit"
+              style={{
+                ...styles.submitButton,
+                backgroundColor: loading || (uploadType === "file" && !checkbox) ? "#ccc" : "#0073e6",
+                cursor: loading || (uploadType === "file" && !checkbox) ? "not-allowed" : "pointer",
+              }}
+              disabled={loading || (uploadType === "file" && !checkbox)}
+            >
+              {loading ? "Uploading..." : "Upload DNC List"}
+            </button>
+
         </form>
 
         {successMessage && <p style={styles.successMessage}>{successMessage}</p>}
@@ -215,20 +224,19 @@ const styles = {
     backgroundColor: "#ffffff",
   },
   container: {
-    maxWidth: "600px", // Increase this value if you'd like a wider container
+    maxWidth: "600px",
     width: "100%",
     padding: "20px",
     backgroundColor: "#ffffff",
     borderRadius: "8px",
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-    textAlign: "left", // Align container content to the left
+    textAlign: "center",
   },
   mainHeading: {
     fontSize: "1.5em",
     fontWeight: "bold",
     color: "#0073e6",
     marginBottom: "20px",
-    textAlign: "left", // Align heading text to the left
   },
   form: {
     display: "flex",
@@ -237,16 +245,14 @@ const styles = {
   },
   inputGroup: {
     marginBottom: "15px",
-    textAlign: "left", // Align input group text to the left
   },
   label: {
     display: "block",
     fontWeight: "500",
     marginBottom: "5px",
-    textAlign: "left", // Align label text to the left
   },
   input: {
-    width: "100%", // Ensures input takes full width of container
+    width: "100%",
     padding: "10px",
     fontSize: "1em",
     borderRadius: "4px",
@@ -264,7 +270,6 @@ const styles = {
     border: "1px solid #ddd",
     backgroundColor: "#f9f9f9",
     cursor: "pointer",
-    textAlign: "left", // Align tab text to the left
   },
   activeTab: {
     flex: 1,
@@ -274,18 +279,15 @@ const styles = {
     backgroundColor: "#0073e6",
     color: "#fff",
     cursor: "pointer",
-    textAlign: "left", // Align active tab text to the left
   },
   checkboxContainer: {
     display: "flex",
     alignItems: "center",
     marginTop: "10px",
-    textAlign: "left", // Align checkbox container text to the left
   },
   checkboxLabel: {
     marginLeft: "8px",
     fontSize: "0.9em",
-    textAlign: "left", // Align checkbox label text to the left
   },
   submitButton: {
     marginTop: "20px",
@@ -296,14 +298,10 @@ const styles = {
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
-    textAlign: "center", // Center-align the button text
   },
   successMessage: {
     color: "green",
     marginTop: "15px",
     fontSize: "1em",
-    textAlign: "left", // Align success message text to the left
-    paddingLeft: "10px",
   },
 };
-
